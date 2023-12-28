@@ -46,4 +46,25 @@ class ExcelHandler():
             return df
 
         return None
-        
+
+    def update_sheet_with_dataframe(self, df):
+        if self.wb:
+            try:
+                # Assuming you want to update the active sheet
+                active_sheet = self.wb.sheets.active
+
+                # Clear existing data in the sheet
+                active_sheet.clear()
+
+                # Write the new DataFrame to the sheet starting from cell A1
+                active_sheet.range("A1").value = df.values.tolist()
+
+                # Save the workbook to apply changes
+                self.wb.save()
+
+                return True
+            except Exception as e:
+                print(f"Error updating sheet: {e}")
+                return False
+
+        return False    

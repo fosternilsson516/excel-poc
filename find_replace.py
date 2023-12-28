@@ -8,20 +8,21 @@ class FindReplace(tk.Frame):
         self.excel_handler = excel_handler
         self.create_widgets()
         self.set_df = None
+        self.template_df = None
 
     def create_widgets(self):
-        label = tk.Label(self, text="Select File That Needs Characters Fixed", font=("Helvetica", 12))
+        label = tk.Label(self, text="Select Template Find And Replace File", font=("Helvetica", 12))
         label.place(x=120, y=40)
 
         # Add button to open Excel file in Tab One
-        button = tk.Button(self, text="Connect & Load Working File", command=self.set_excel_df)
+        button = tk.Button(self, text="Connect & Load Template File", command=self.template_excel_file)
         button.place(x=167, y=80)
 
-        label = tk.Label(self, text="Select Template Find And Replace File", font=("Helvetica", 12))
+        label = tk.Label(self, text="Select File That Needs Characters Fixed", font=("Helvetica", 12))
         label.place(x=120, y=140)
 
         # Add button to open Excel file in Tab One
-        button = tk.Button(self, text="Connect & Load Template File", command=self.template_excel_file)
+        button = tk.Button(self, text="Connect & Load Working File", command=self.set_excel_df)
         button.place(x=167, y=180)
 
     def set_excel_df(self):
@@ -32,31 +33,34 @@ class FindReplace(tk.Frame):
                 self.set_df = self.excel_handler.get_selected_data() 
                 if self.set_df is not None: 
                     print("DataFrame Set:")
-                    print(self.set_df)      
+                    print(self.set_df) 
+                    self.process_selected_data(self.template_df)
+                    print(file_path)     
 
     def template_excel_file(self):
         file_path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx;*.xls")])
         if file_path:
             success = self.excel_handler.open_excel_file(file_path)
-            template_df = self.excel_handler.get_selected_data()
-            if template_df is not None:
+            self.template_df = self.excel_handler.get_selected_data()
+            if self.template_df is not None:
                 print("Template DataFrame:")
-                print(template_df)
-                self.process_selected_data(template_df)
-                self.wb.close()              
+                print(self.template_df)
+                 
+                             
                   
 
     def process_selected_data(self, template_df):
-        if self.set_df is not None and template_df is not None:
+        if self.set_df is not None and self.template_df is not None:
             # Create a dictionary from "Find" and "Replace" columns in the template
-            find_replace_dict = self.create_find_replace_dict(template_df)
+            find_replace_dict = self.create_find_replace_dict(self.template_df)
 
             for find_value, replace_value in find_replace_dict.items():
                 # Replace values in the set_df
                 self.set_df = self.replace_values(self.set_df, find_value, replace_value)
 
             print("DataFrame after replacement:")
-            print(self.set_df)       
+            print(self.set_df)  
+            self.excel_handler.update_sheet_with_dataframe(self.set_df)    
 
     def create_find_replace_dict(self, df):
         find_replace_dict = dict(zip(df.iloc[:, 0], df.iloc[:, 1]))
