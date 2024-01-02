@@ -47,17 +47,14 @@ class ExcelHandler():
 
         return None
 
-    def update_sheet_with_dataframe(self, df):
+    def update_sheet_with_dataframe(self, df, new_sheet_name="Cleaned Data"):
         if self.wb:
             try:
-                # Assuming you want to update the active sheet
-                active_sheet = self.wb.sheets.active
+                
+                new_sheet = self.wb.sheets.add(new_sheet_name)
 
-                # Clear existing data in the sheet
-                active_sheet.clear()
-
-                # Write the new DataFrame to the sheet starting from cell A1
-                active_sheet.range("A1").value = df.values.tolist()
+           
+                new_sheet.range("A1").value = df.values.tolist()
 
                 # Save the workbook to apply changes
                 self.wb.save()
